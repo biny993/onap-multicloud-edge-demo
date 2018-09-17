@@ -22,6 +22,7 @@ $ policy stop
 
 $ features install controlloop-utils
 $ features enable controlloop-utils
+$ features enable controlloop-beijing
 
 $ policy start
 
@@ -46,7 +47,7 @@ $ /tmp/beijing/beijing-controller.properties /opt/app/policy/config/beijing-cont
 
 ### change topic sink infra
 
-policy@drools:/tmp/basex-controlloop$ diff /tmp/beijing/beijing-controller.properties /opt/app/policy/config/beijing-controller.properties 
+policy@drools:/tmp/basex-controlloop$ diff /tmp/beijing/beijing-controller.properties /opt/app/policy/config/beijing-controller.properties
 50c50,51
 < noop.sink.topics=APPC-CL,APPC-LCM-READ,POLICY-CL-MGT
 ---
@@ -66,16 +67,51 @@ policy@drools:/tmp/basex-controlloop$ diff /tmp/beijing/beijing-controller.prope
 > ueb.sink.topics.APPC-LCM-READ.events.custom.gson=org.onap.policy.appclcm.util.Serialization,gson
 
 
-
 $ policy stop
 $ policy start
+
+$ bin/push-policies-beijing
+	When the script prompts for the path to the properties file, enter the following
+		/opt/app/policy/config/beijing-controller.properties
 
 $ curl --silent --user @1b3rt:31nst31n -X GET http://localhost:9696/policy/pdp/engine/controllers/beijing/drools/facts/beijing | python -m json.tool
 
 
 {
- "org.onap.policy.controlloop.Params": 1
+ "org.onap.policy.controlloop.Params": 4
 }
 
 ======= validation ======
+
+curl -X POST \
+  http://10.12.6.210:3904/events/unauthenticated.DCAE_CL_OUTPUT \
+  -H 'Cache-Control: no-cache' \
+  -H 'Content-Type: application/json' \
+  -H 'Postman-Token: ebe259f9-66c1-46c6-a7c9-21cc9c1d7d22' \
+  -H 'X-FromAppId: 121' \
+  -H 'X-TransactionId: 9999' \
+  -d '{
+       "target": "vserver.vserver-name",
+       "target_type": "VM",
+       "AAI": {
+           "vserver.in-maint": false,
+           "vserver.is-closed-loop-disabled": false,
+           "vserver.prov-status": "ACTIVE",
+           "vserver.resource-version": "1536565578797",
+           "vserver.vserver-id": "726ce4c0-4f09-437c-8ecf-d509f1181f7c",
+           "vserver.vserver-name": "zdfw1lb01lb01",
+           "vserver.vserver-name2": "zdfw1lb01lb01",
+           "vserver.vserver-selflink": "http://10.12.25.2:8774/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/726ce4c0-4f09-437c-8ecf-d509f1181f7c",
+           "generic-vnf.vnf-id": "69bc974a-50b7-4a61-bc5d-dc1728a3fe89",
+           "service-instance.service-instance-id": "a63f7160-98da-4965-9cdd-2088b9fe50d0"
+       },
+       "closedLoopAlarmStart": 1484855291527925,
+       "closedLoopEventStatus": "ONSET",
+       "closedLoopControlName": "ControlLoop-vCPE-48f0c2c3-a172-4192-9ae3-052274181b6e",
+       "version": "1.0.2",
+       "requestID": "8c1b8bd8-06f7-493f-8ed7-daaa4cc481bc",
+       "from": "DCAE"
+}'
+
+$ curl --silent --user @1b3rt:31nst31n -X GET http://localhost:9696/policy/pdp/engine/controllers/beijing | python -m json.tool
 

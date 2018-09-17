@@ -4,10 +4,13 @@
 ### provision vesagent to monitor specific VMs under specific tenant
 
 ### make sure to use DCAE VM's Floating IP as VES_COLLECTOR_IP
-$ export VES_COLLECTOR_IP= <DCAE VM's Floating IP, e.g. 10.12.6.55>
-$ export MULTISERVICE_IP=10.0.14.1
-$ export MC_EP_PORT=9005
+export VES_COLLECTOR_IP= <DCAE VM's Floating IP, e.g. 10.12.6.55>
+export MULTISERVICE_IP=10.0.14.1
+export MC_EP_PORT=9005
 
 export MC_EP=http://$MULTISERVICE_IP:$MC_EP_PORT/api/multicloud-titaniumcloud/v1/CloudOwner/sx0
 
 curl -v -s -H "Content-Type: application/json" $MC_EP/vesagent -X POST -d '{"vesagent_config":{"backlogs":[{"source":"<VM name, e.g. zdfw1lb01dns01>","domain":"fault","type":"vm","tenant":"edge1"}],"poll_interval_default":10,"ves_subscription":{"username":"admin","password":"admin","endpoint":"http://<DCAE VM's Floating IP, e.g. 10.12.6.55>:8081/eventListener/v5"}}}'
+
+
+curl -v -s -H "Content-Type: application/json" $MC_EP/vesagent -X GET

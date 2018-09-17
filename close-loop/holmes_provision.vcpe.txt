@@ -1,5 +1,8 @@
+### hints: https://wiki.onap.org/display/DW/Holmes+Component
+
 ### login the Robot VM
-$ export MULTISERVICE_IP=10.0.14.1
+export MULTISERVICE_IP=10.0.14.1
+export DMAAP_IP=10.0.11.1
 
 ### check health
 curl -X GET http://$MULTISERVICE_IP/api/holmes-engine-mgmt/v1/healthcheck
@@ -10,14 +13,26 @@ curl -X GET http://$MULTISERVICE_IP/api/holmes-rule-mgmt/v1/healthcheck
 curl -X PUT -H 'Content-Type: application/json' -d '{"name":"unauthenticated.SEC_FAULT_OUTPUT", "url":"http://10.0.11.1:3904/events/unauthenticated.SEC_FAULT_OUTPUT"}' http://$MULTISERVICE_IP/api/holmes-engine-mgmt/v1/dmaap/sub
 
 curl -X PUT -H 'Content-Type: application/json' -d '{"name":"unauthenticated.DCAE_CL_OUTPUT", "url":"http://10.0.11.1:3904/events/unauthenticated.DCAE_CL_OUTPUT"}'  http://$MULTISERVICE_IP/api/holmes-engine-mgmt/v1/dmaap/pub
- 
+
 
 ### provision with rules
 curl -X GET http://$MULTISERVICE_IP/api/holmes-rule-mgmt/v1/rule |python -m json.tool
+
+curl -X DELETE http://10.0.14.1/api/holmes-rule-mgmt/v1/rule/rule_1508902811935
+
+
 curl -X PUT -H 'Content-Type: application/json' -d @holmes_rule.vcpe.json http://$MULTISERVICE_IP/api/holmes-rule-mgmt/v1/rule
 
 ### validate the rule:
 
+  
+	### inject the alarm onset event
+	$ curl -i -X POST -d @holmes_test.alarm_on.json --header "Content-Type: application/json" http://10.12.6.55:8081/eventListener/v5 -k
+
+
+	### you should be able to observe the DMaaP event delivered by Holmes
+	
+Appendix:
 	### observing Holmes output by postman/curl command (repeat the curl command multiple times)
 	curl -X GET \
   'http://10.12.6.210:3904/events/unauthenticated.DCAE_CL_OUTPUT/EVENT-LISTENER-POSTMAN/304?timeout=6000&limit=10&filter=' \
@@ -27,9 +42,7 @@ curl -X PUT -H 'Content-Type: application/json' -d @holmes_rule.vcpe.json http:/
   -H 'X-FromAppId: 121' \
   -H 'X-TransactionId: 9999'
 
+  ### restart containers to reset service
+  sudo docker restart ...
   
-	### inject the alarm onset event
-	$ curl -i -X POST -d @holmes_test.alarm_on.json --header "Content-Type: application/json" http://10.12.6.55:8081/eventListener/v5 -k
-
-
-	### you should be able to observe the DMaaP event delivered by Holmes
+  ### holmes is not stable yet

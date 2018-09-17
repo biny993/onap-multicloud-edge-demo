@@ -2,8 +2,11 @@
 
 ### Provision dmaapclient to subscribe the event of "APPC-LCM-READ"
 
-$ export DMAAP_IP=10.0.11.1
-$ export MULTISERVICE_IP=10.0.14.1
-$ export DC_EP_PORT=9010
-curl -v -s -H "Content-Type: application/json" http://$MULTISERVICE_IP:$DC_EP_PORT/api/multicloud-dmaapclient/v1/dmaapclient -X POST -d '{"dmaapclient_config":{"topic_subscribe_url":"http://$DMAAP_IP:3904/events/APPC-LCM-READ/dmaapclient/304?timeout=6000&limit=10&filter="} }'
+export DMAAP_IP=10.0.11.1
+export MULTISERVICE_IP=10.0.14.1
+export DC_EP_PORT=9010
 
+curl -v -s -H "Content-Type: application/json" http://$MULTISERVICE_IP:$DC_EP_PORT/api/multicloud-dmaapclient/v1/dmaapclient -X POST -d '{"dmaapclient_config":{"topic_subscribe_url":"http://10.0.11.1:3904/events/APPC-LCM-READ/dmaapclient/304?timeout=6000&limit=10&filter="} }'
+
+
+curl -v -s -H "Content-Type: application/json" http://$MULTISERVICE_IP:$DC_EP_PORT/api/multicloud-dmaapclient/v1/dmaapclient -X GET
