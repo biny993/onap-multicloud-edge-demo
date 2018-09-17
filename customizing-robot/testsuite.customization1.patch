@@ -1,0 +1,144 @@
+diff --git a/docker/lighttpd.conf b/docker/lighttpd.conf
+index e9a5a37..91b9b10 100644
+--- a/docker/lighttpd.conf
++++ b/docker/lighttpd.conf
+@@ -1,6 +1,6 @@
+ server.document-root = "/var/opt/OpenECOMP_ETE/html/"
+ 
+-server.port = 88
++server.port = 98
+ 
+ server.username = "www-data"
+ server.groupname = "www-data"
+diff --git a/robot/resources/demo_preload.robot b/robot/resources/demo_preload.robot
+index f87cc36..a2c8778 100644
+--- a/robot/resources/demo_preload.robot
++++ b/robot/resources/demo_preload.robot
+@@ -197,4 +197,36 @@ Save For Delete
+     OperatingSystem.Create File   ${FILE_CACHE}/${STACK_NAME}.py   ${vars}
+     OperatingSystem.Create File   ${FILE_CACHE}/lastVNF4HEATBRIGE.py   ${vars}
+ 
++Get VF Module With Type
++    [Documentation]   search the VF Module by matching the VF Module name with type pattern
++    [Arguments]   ${vf_modules}   ${vf_module_type_pattern}
++    :for    ${vf_module}    in      @{vf_modules}
++    \       ${vf_module_type}=    Get From Dictionary    ${vf_module}    name
++    \       Return From Keyword If    '${vf_module_type_pattern}' in '${vf_module_type}'     ${vf_module}
++    [Return]    None
++
++Preload User Model for VF Module
++    [Documentation]   Preload the heat env file as VF module data into SDNC
++    [Arguments]   ${vnf_name}   ${vf_module_name}   ${vf_module_type_pattern}   ${VF_MODULE_DATA_FILE}
++    # Go to A&AI and get information about the VNF we need to preload
++    ${status}  ${generic_vnf}=   Run Keyword And Ignore Error   Get Service Instance    ${vnf_name}
++    Run Keyword If   '${status}' == 'FAIL'   FAIL   VNF Name: ${vnf_name} is not found.
++    ${vnf_type}=   Set Variable   ${generic_vnf['vnf-type']}
++    ${relationships}=   Set Variable   ${generic_vnf['relationship-list']['relationship']}
++    ${relationship_data}=    Get Relationship Data   ${relationships}
++    ${customer_id}=   Catenate
++    :for    ${r}   in   @{relationship_data}
++    \   ${service}=   Set Variable If    '${r['relationship-key']}' == 'service-subscription.service-type'   ${r['relationship-value']}    ${service}
++    \   ${service_instance_id}=   Set Variable If    '${r['relationship-key']}' == 'service-instance.service-instance-id'   ${r['relationship-value']}   ${service_instance_id}
++    \   ${customer_id}=    Set Variable If   '${r['relationship-key']}' == 'customer.global-customer-id'   ${r['relationship-value']}   ${customer_id}
++    ${invariantUUID}=   Get Persona Model Id     ${service_instance_id}    ${service}    ${customer_id}
+ 
++    # We still need the vf module names. We can get them from VID using the persona_model_id (invariantUUID) from A&AI
++    Setup Browser
++    Login To VID GUI
++    ${vf_modules}=   Get Module Names from VID    ${invariantUUID}
++    ${vf_module}=   Get VF Module With Type   ${vf_modules}   ${vf_module_type_pattern}
++    Log    ${generic_vnf}
++    Log   ${service_instance_id},${vnf_name},${vnf_type},${vf_module_name},${vf_module},${service}
++    Preload VF Module    ${service_instance_id}   ${vnf_name}   ${vnf_type}   ${vf_module_name}    ${vf_module}    ${service}   ${VF_MODULE_DATA_FILE}
++    [Teardown]    Close All Browsers
+diff --git a/robot/resources/sdngc_interface.robot b/robot/resources/sdngc_interface.robot
+index b311e9b..de95968 100644
+--- a/robot/resources/sdngc_interface.robot
++++ b/robot/resources/sdngc_interface.robot
+@@ -7,6 +7,7 @@ Library 	    ExtendedSelenium2Library
+ Library         Collections
+ Library      String
+ Library      StringTemplater
++Library    HEATUtils
+ Resource          global_properties.robot
+ Resource          ../resources/json_templater.robot
+ Resource        browser_setup.robot
+@@ -20,7 +21,7 @@ ${PRELOAD_VNF_TOPOLOGY_OPERATION_BODY}  robot/assets/templates/sdnc/
+ ${SDNGC_INDEX_PATH}    /restconf
+ ${SDNCGC_HEALTHCHECK_OPERATION_PATH}  /operations/SLI-API:healthcheck
+ ${SDNGC_REST_ENDPOINT}    ${GLOBAL_SDNGC_SERVER_PROTOCOL}://${GLOBAL_INJECTED_SDNC_IP_ADDR}:${GLOBAL_SDNGC_REST_PORT}
+-${SDNGC_ADMIN_ENDPOINT}    ${GLOBAL_SDNGC_SERVER_PROTOCOL}://${GLOBAL_INJECTED_SDNC_PORTAL_IP_ADDR}:${GLOBAL_SDNGC_ADMIN_PORT}
++${SDNGC_ADMIN_ENDPOINT}    ${GLOBAL_SDNGC_SERVER_PROTOCOL}://${GLOBAL_INJECTED_SDNC_IP_ADDR}:${GLOBAL_SDNGC_ADMIN_PORT}
+ ${SDNGC_ADMIN_SIGNUP_URL}    ${SDNGC_ADMIN_ENDPOINT}/signup
+ ${SDNGC_ADMIN_LOGIN_URL}    ${SDNGC_ADMIN_ENDPOINT}/login
+ ${SDNGC_ADMIN_VNF_PROFILE_URL}    ${SDNGC_ADMIN_ENDPOINT}/mobility/getVnfProfile
+@@ -237,4 +238,37 @@ Login To SDNGC Admin GUI
+     Input Password    xpath=//input[@id='password']    ${shortened_uuid}
+     Click Button    xpath=//button[@type='submit']
+     Title Should Be    SDN-C AdminPortal
+-    Log    Logged in to ${SDNGC_ADMIN_LOGIN_URL}
+\ No newline at end of file
++    Log    Logged in to ${SDNGC_ADMIN_LOGIN_URL}
++
++Resolve VF Module Into Array
++    [Arguments]   ${from}
++    ${vf_parameters}=   Create List
++    ${keys}=    Get Dictionary Keys    ${from}
++    :for   ${key}   in  @{keys}
++    \    ${value}=    Get From Dictionary    ${from}   ${key}
++    \    ${parameter}=   Create Dictionary   vnf-parameter-name=${key}    vnf-parameter-value=${value}
++    \    Append To List    ${vf_parameters}   ${parameter}
++    [Return]   ${vf_parameters}
++
++Preload VF Module
++    [Arguments]    ${service_type_uuid}    ${generic_vnf_name}    ${generic_vnf_type}    ${vf_module_name}    ${vf_module}    ${service}    ${vf_data_file}
++    ${vf_module_type}=    Get From Dictionary    ${vf_module}    name
++    Preload Vnf Profile    ${vf_module_type}
++    Preload One Vnf Topology With Data    ${service_type_uuid}    ${generic_vnf_name}    ${generic_vnf_type}     ${vf_module_name}    ${vf_module_type}    ${service}    ${vf_data_file}
++    [Return]    ${vf_module_type}
++
++Preload One Vnf Topology With Data
++    [Arguments]    ${service_type_uuid}    ${generic_vnf_name}    ${generic_vnf_type}       ${vf_module_name}    ${vf_module_type}    ${service}    ${filename}
++    Return From Keyword If    '${filename}' == ''
++    ${data_template}=    OperatingSystem.Get File    ${PRELOAD_VNF_TOPOLOGY_OPERATION_BODY}/preload.template
++    ${vf_module_data_str}=    Env Yaml To Json    /share/vfmoduledata/${filename}
++    ${vnf_parameters_dict}=    To Json    ${vf_module_data_str}
++    ${vnf_parameters_array}=   Resolve VF Module Into Array  ${vnf_parameters_dict}
++    ${vnf_parameters_json}=   Evaluate    json.dumps(${vnf_parameters_array})    json
++    ${parameters}=   Create Dictionary   vnf_parameters=${vnf_parameters_json}
++    Set To Dictionary   ${parameters}   generic_vnf_name=${generic_vnf_name}     generic_vnf_type=${generic_vnf_type}  service_type=${service_type_uuid}    vf_module_name=${vf_module_name}    vf_module_type=${vf_module_type}
++    ${data}=	Fill JSON Template    ${data_template}    ${parameters}
++	${put_resp}=    Run SDNGC Post Request     ${SDNGC_INDEX_PATH}${PRELOAD_VNF_TOPOLOGY_OPERATION_PATH}     ${data}
++    Should Be Equal As Strings 	${put_resp.json()['output']['response-code']} 	200
++    ${get_resp}=  Run SDNGC Get Request  ${SDNGC_INDEX_PATH}${PRELOAD_VNF_CONFIG_PATH}/${vf_module_name}/${vf_module_type}
++    Should Be Equal As Strings 	${get_resp.status_code} 	200
+diff --git a/robot/testsuites/demo.robot b/robot/testsuites/demo.robot
+index a6c6cb8..7848151 100644
+--- a/robot/testsuites/demo.robot
++++ b/robot/testsuites/demo.robot
+@@ -21,6 +21,10 @@ Initialize Customer And Models
+ 
+ Initialize Customer
+     [Tags]   InitCustomer
++    Load OwningEntity  lineOfBusiness  LOB-${customer_name}
++    Load OwningEntity  platform  Platform-${customer_name}
++    Load OwningEntity  project  Project-${customer_name}
++    Load OwningEntity  owningEntity  OE-${customer_name}
+     Load Customer   Demonstration
+ 
+ Initialize Models
+@@ -31,6 +35,7 @@ Preload VNF
+     [Tags]   PreloadDemo
+     Preload User Model   ${VNF_NAME}   ${MODULE_NAME}
+ 
++
+ Create APPC Mount Point
+     [Tags]   APPCMountPointDemo
+     APPC Mount Point    ${MODULE_NAME}
+@@ -67,3 +72,6 @@ Preload APPC CDT GUI
+     Preload APPC CDT GUI
+ #    Preload APPC CDT GUI   demo   reference_AllAction_vLoadBalancer_vLoadBalancer-test0_0.0.1V.json   ${EXECDIR}/robot/assets/templates/appc/reference_AllAction_vLoadBalancer_vLoadBalancer-test0_0.0.1V.json   ${EXECDIR}/robot/assets/templates/appc/template_ConfigScaleOut_vLoadBalancer_vLoadBalancer-test0_0.0.1V_vLB.xml   ${EXECDIR}/robot/assets/templates/appc/pd_ConfigScaleOut_vLoadBalancer_vLoadBalancer-test0_0.0.1V_vLB.yaml
+ 
++Preload VF Module
++    [Tags]   PreloadVFModule
++    Preload User Model for VF Module   ${VNF_NAME}   ${VF_MODULE_NAME}   ${VF_MODULE_TYPE_PATTERN}   ${VF_MODULE_DATA_FILE}

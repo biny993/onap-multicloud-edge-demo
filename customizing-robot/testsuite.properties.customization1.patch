@@ -1,0 +1,92 @@
+diff --git a/demo.sh b/demo.sh
+index e7dcd51..98506e9 100644
+--- a/demo.sh
++++ b/demo.sh
+@@ -33,6 +33,20 @@ function usage
+ 	echo " "
+ 	echo "       demo.sh heatbridge <stack_name> <service_instance_id> <service>"
+     echo "               - Run heatbridge against the stack for the given service instance and service"
++    echo " "
++    echo "       demo.sh preload_vfmodule <vnf_name> <module_name> <module_type_pattern> <heat_env_file>"
++    echo "               - Preload data for a VF Module with a heat env file
++    echo "               - module_type_pattern should be part of VF Module type id,e.g. vlb..module-0
++    echo "               - The heat env file should be placed at /share/vfmoduledata/ inside the container"
++    echo " "
++    echo "       demo.sh add_complex <complex name/id> <latitude> <longitude>"
++    echo "               - Create an AAI complex object"
++    echo " "
++    echo "       demo.sh add_customer <customer name> <service type>"
++    echo "               - Add an AAI customer object with service type"
++    echo " "
++    echo "       demo.sh associate_customer <customer name> <service type> <cloud owner> <cloud region id> <tenant id>"
++    echo "               - Associate an AAI customer object with an AAI cloud region object"
+ }
+ 
+ # Set the defaults
+@@ -136,6 +150,66 @@ do
+ 			VARIABLES="$VARIABLES -v HB_SERVICE:$1"
+ 			shift
+ 			;;
++    	preload_vfmodule)
++			TAG="PreloadVFModule"
++			shift
++			if [ $# -ne 4 ];then
++				echo "Usage: demo.sh preload_vfmodule <vnf_name> <module_name> <module_type_pattern> <heat_env_file>"
++				exit
++			fi
++			VARIABLES="$VARIABLES -v VNF_NAME:$1"
++			shift
++			VARIABLES="$VARIABLES -v VF_MODULE_NAME:$1"
++			shift
++			VARIABLES="$VARIABLES -v VF_MODULE_TYPE_PATTERN:$1"
++			shift
++			VARIABLES="$VARIABLES -v VF_MODULE_DATA_FILE:$1"
++			shift
++			;;
++    	add_complex)
++			TAG="AddComplex"
++			shift
++			if [ $# -ne 3 ];then
++				echo "Usage: demo.sh add_complex <complex name/id> <latitude> <longitude>"
++				exit
++			fi
++			VARIABLES="$VARIABLES -v COMPLEX_NAME_ID:$1"
++			shift
++			VARIABLES="$VARIABLES -v LATITUDE:$1"
++			shift
++			VARIABLES="$VARIABLES -v LONGITUDE:$1"
++			shift
++            ;;
++    	add_customer)
++			TAG="AddCustomer"
++			shift
++			if [ $# -ne 2 ];then
++				echo "Usage: demo.sh add_customer <customer name> <service type>"
++				exit
++			fi
++			VARIABLES="$VARIABLES -v CUSTOMER-NAME:$1"
++			shift
++			VARIABLES="$VARIABLES -v SERVICE-TYPE:$1"
++			shift
++            ;;
++    	associate_customer)
++			TAG="AssociateCustomerCloudRegion"
++			shift
++			if [ $# -ne 5 ];then
++				echo "Usage: demo.sh associate_customer <customer name> <service type> <cloud owner> <cloud region id> <tenant id>"
++				exit
++			fi
++			VARIABLES="$VARIABLES -v CUSTOMER-NAME:$1"
++			shift
++			VARIABLES="$VARIABLES -v SERVICE-TYPE:$1"
++			shift
++			VARIABLES="$VARIABLES -v CLOUD-OWNER:$1"
++			shift
++			VARIABLES="$VARIABLES -v CLOUD-REGION-ID:$1"
++			shift
++			VARIABLES="$VARIABLES -v TENANT-ID:$1"
++			shift
++            ;;
+     	*)
+ 			usage
+ 			exit

@@ -32,7 +32,7 @@ Note: verified with HEAT based ONAP beijing release.
 		$ sudo -D build -t my_testsuite .
 		
 
-3 Deploy customized robot service:
+3 Deploy customized robot service onto robot VM:
 	### bring down the original container
 	$ sudo docker stop myrobot
 	$ sudo docker rm myrobot
@@ -44,7 +44,33 @@ Note: verified with HEAT based ONAP beijing release.
 	$ sudo cp /opt/demo.sh /opt/mydemo.sh
 	$ sudo cp ~/testsuite/properties/demo.sh /opt/mydemo.sh
 
-4, exercises:
+	
+*** Appendix/exercises:
+
+Prerequist: init customer and models
+sudo /opt/mydemo.sh init
+
+Exercise 1: Add complex
+
+### using robot script, add complex object clli3:
+sudo /opt/mydemo.sh add_complex clli3 10 20
+
+Exercise 2:
+
+### using robot script, add customer democust1 with service type: vLB
+sudo /opt/mydemo.sh add_customer democust1 vLB
+
+Exercise 3:
+
+### using ESR GUI Portal, on-board a cloud region: (CloudOwner/pod01, tenant name: VIM)
+http://msb.api.simpledemo.onap.org/iui/aai-esr-gui/extsys/vim/vimView.html
+
+
+### using robot script, associate the customer with the on-boarded cloud region (CloudOwner/pod01) and tenant name "VIM"
+sudo /opt/mydemo.sh associate_customer democust1 vLB CloudOwner pod01 VIM
+
+
+Exercise 4: preload VNF data
 
 ### Prepare the heat env file as VF module preload data
 	ubuntu@vm0-robot:~/testsuite$ cat /opt/eteshare/vfmoduledata/vlb-vfmodule-1.env 
@@ -53,18 +79,6 @@ Note: verified with HEAT based ONAP beijing release.
 	  vlb_flavor_name: m1.large
 	  public_net_id: 00000000-0000-0000-0000-000000000000
 
-
-### using robot script, add complex object clli3:
-sudo /opt/mydemo.sh add_complex clli3 10 20
-
-### using robot script, add customer democust1 with service type: vLB
-sudo /opt/mydemo.sh add_customer democust1 vLB
-
-### using ESR GUI Portal, on-board a cloud region: (CloudOwner/pod01, tenant name: VIM)
-http://msb.api.simpledemo.onap.org/iui/aai-esr-gui/extsys/vim/vimView.html
-
-### using robot script, associate the customer with the on-boarded cloud region (CloudOwner/pod01) and tenant name "VIM"
-sudo /opt/mydemo.sh associate_customer democust1 vLB CloudOwner pod01 VIM
 
 ### using VID, create a service instance, add generic vnf:
 http://portal.api.simpledemo.onap.org:8989/ONAPPORTAL/login.htm
