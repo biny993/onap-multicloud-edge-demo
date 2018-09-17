@@ -1,0 +1,92 @@
+Prerequist: init customer and models
+    ### login to Robot VM
+	$ export ROBOT_IP=<robot VM IP>
+	$ ssh -o StrictHostKeychecking=no -i ~/.ssh/onap_key ubuntu@$ROBOT_IP
+	$ sudo /opt/mydemo.sh init
+
+1, Create complex: clli3, with latitude/longitude: 10/20
+
+	### login to Robot VM
+	$ sudo /opt/mydemo.sh add_complex clli3 10 20
+
+2, on-board/register the eduge cloud to ONAP as a cloud region (CloudOwner/sx1)
+
+	### using ESR GUI Portal, on-board a cloud region: (CloudOwner/sx0, tenant name: edge1)
+
+		a, browse URL: http://msb.api.simpledemo.onap.org/iui/aai-esr-gui/extsys/vim/vimView.html
+		
+		b, Click "Register" button on the top left area
+		
+		c, Populate following fields as below data over the dialog page:
+			Cloud owner:  CloudOwner
+			Cloud region id:  sx0
+			Cloud Type: openstack
+			Cloud Region Version: titanium_cloud
+			Physical location id: clli3
+			Auth url: http://10.12.25.2:5000/v3
+			User: demo
+			password: <your password>
+			Ssl-insecure: true
+			Cloud Domain: Default
+			Default Tenant: edge1
+		
+		d, Click "Save" button
+			The dialog takes a few minutes to discover cloud region resource and then disappears
+
+3, Register the cloud region to SO (hacking)
+	### hacking SO cloud-site config file: 	(https://wiki.onap.org/pages/viewpage.action?pageId=25431491) 
+	
+	
+	$ login to SO VM:
+	$ export SO_IP=<SO_VM floating IP>
+	$ ssh -o StrictHostKeychecking=no -i /home/wruser/.ssh/onap_key ubuntu@$SO_IP
+	
+	### check the content of SO config file
+	$ cat /opt/test_lab/volumes/mso/chef-config/mso-docker.json
+	
+	### Add following line in red to section "mso-po-adapter-config" in mso-docker.json
+	### Note: password can be any value since it is leveraging multicloud service.
+	$ sudo vi  /opt/test_lab/volumes/mso/chef-config/mso-docker.json
+		"cloud_sites": [
+				{
+		          "aic_version": "2.5",
+		          "id": "sx0",
+		          "identity_service_id": "MC_KEYSTONE",
+		          "lcp_clli": "sx0",
+		          "region_id": "ONAP-SX-0"
+		        }
+		
+		      ],
+		      "identity_services": [
+				{
+		          "admin_tenant": "service",
+		          "dcp_clli": "MC_KEYSTONE",
+		          "identity_authentication_type": "USERNAME_PASSWORD",
+		          "identity_server_type": "KEYSTONE",
+		          "identity_url": "http://10.0.14.1:9001/api/multicloud/v1/CloudOwner/sx0/identity/v2.0",
+		          "member_role": "admin",
+		          "mso_id": "demo",
+		          "mso_pass": "bbaef6cd76625ab9eb60deedeae7dbb9",
+		          "tenant_metadata": "true"
+		        }
+		
+		      ],
+
+	### restart SO container
+	$ sudo docker restart testlab_mso_1
+
+	### check hacked config
+	http://so.api.simpledemo.onap.org:8080/networks/rest/cloud/showConfig
+
+
+4, Add customer:
+	### login to Robot VM
+	### using robot script, add customer democust1 with service type: vLB
+	sudo /opt/mydemo.sh add_customer democust1 vLB
+
+5, Associate the cloud region (CloudOwner/sx0, tenant name: edge1) with customer (democust1)
+
+	### login to Robot VM
+	### using robot script, associate the customer with the on-boarded cloud region (CloudOwner/sx0) and tenant name "edge1"
+	sudo /opt/mydemo.sh associate_customer democust1 vLB CloudOwner sx0 edge1
+
