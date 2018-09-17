@@ -9,7 +9,7 @@ Prerequist: init customer and models
 	### login to Robot VM
 	$ sudo /opt/mydemo.sh add_complex clli3 10 20
 
-2, on-board/register the eduge cloud to ONAP as a cloud region (CloudOwner/sx1)
+2, on-board/register the edge cloud to ONAP as a cloud region (CloudOwner/sx1)
 
 	### using ESR GUI Portal, on-board a cloud region: (CloudOwner/sx0, tenant name: edge1)
 
@@ -79,12 +79,12 @@ Prerequist: init customer and models
 	http://so.api.simpledemo.onap.org:8080/networks/rest/cloud/showConfig
 
 
-4, Add customer:
+4, Add a customer:
 	### login to Robot VM
 	### using robot script, add customer democust1 with service type: vLB
 	sudo /opt/mydemo.sh add_customer democust1 vLB
 
-5, Associate the cloud region (CloudOwner/sx0, tenant name: edge1) with customer (democust1)
+5, Associate the cloud region (CloudOwner/sx0, tenant name: edge1) with the customer (democust1)
 
 	### login to Robot VM
 	### using robot script, associate the customer with the on-boarded cloud region (CloudOwner/sx0) and tenant name "edge1"
