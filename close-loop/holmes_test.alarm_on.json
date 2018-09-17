@@ -1,0 +1,34 @@
+{
+        "event":        {
+                "commonEventHeader":{
+                        "sourceId":"example-vserver-name-val-75044",
+                        "startEpochMicrosec":1413378172000000,
+                        "eventId":"ab305d54-85b4-a31b-7db2-fb6b9e546015",
+                        "sequence":0,
+                        "domain":"fault",
+                        "lastEpochMicrosec":1413378172000000,
+                        "eventName":"Fault_MultiCloud_VMFailure",
+                        "sourceName":"example-vserver-name-val-75044",
+                        "priority":"High",
+                        "version":3.0,
+                        "reportingEntityName":"Multi-Cloud"
+                },
+ 
+                "faultFields":  {
+ 
+                        "eventSeverity":"CRITICAL",
+ 
+                        "alarmCondition":"Guest_Os_Failure",
+ 
+                        "faultFieldsVersion":2.0,
+ 
+                        "specificProblem":"Fault_MultiCloud_VMFailure",
+ 
+                        "alarmInterfaceA":"aaaa",
+ 
+                        "eventSourceType":"other",
+ 
+                        "vfStatus":"Active"
+                }
+        }
+}

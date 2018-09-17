@@ -1,0 +1,218 @@
+### Policy debug tips
+
+export POLICY_IP=10.12.6.191
+
+1, check the controller, e.g. amsterdam or beijing
+
+	$ curl --silent --user @1b3rt:31nst31n -X GET http://$POLICY_IP:9696/policy/pdp/engine/controllers/beijing | python -m json.tool
+
+### Decode the response:
+wruser@vpn1:~$ curl --silent --user @1b3rt:31nst31n -X GET http://$POLICY_IP:9696/policy/pdp/engine/controllers/beijing | python -m json.tool
+{
+    "alive": true,
+    "drools": {
+        "alive": true,
+        "artifactId": "beijing",
+        "brained": true,
+        "groupId": "org.onap.policy.rules.beijing",
+        "locked": false,
+        "modelClassLoaderHash": 134565858,
+        "recentSinkEvents": [],
+        "recentSourceEvents": [],
+        "sessionCoordinates": [
+            "org.onap.policy.rules.beijing:beijing:1.2.3:beijing"
+        ],
+        "sessions": [
+            "beijing"
+        ],
+        "version": "1.2.3"
+    },
+    "locked": false,
+    "name": "beijing",
+    "topicSinks": [
+        {
+            "alive": true,
+            "allowSelfSignedCerts": false,
+            "apiKey": "",
+            "apiSecret": "",
+            "locked": false,
+            "partitionKey": "5d419aa2-3dd3-4c0a-b006-5cbe2383e141",
+            "recentEvents": [],
+            "servers": [
+                "vm1.mr.simpledemo.openecomp.org"
+            ],
+            "topic": "APPC-LCM-READ",
+            "topicCommInfrastructure": "UEB",
+            "useHttps": false
+        },
+        {
+            "alive": true,
+            "locked": false,
+            "recentEvents": [],
+            "servers": [
+                "vm1.mr.simpledemo.openecomp.org"
+            ],
+            "topic": "APPC-CL",
+            "topicCommInfrastructure": "NOOP"
+        },
+        {
+            "alive": true,
+            "locked": false,
+            "recentEvents": [],
+            "servers": [
+                "vm1.mr.simpledemo.openecomp.org"
+            ],
+            "topic": "POLICY-CL-MGT",
+            "topicCommInfrastructure": "NOOP"
+        }
+    ],
+    "topicSources": [
+        {
+            "alive": true,
+            "allowSelfSignedCerts": false,
+            "apiKey": "",
+            "apiSecret": "",
+            "consumerGroup": "c404d9a2-0ba1-4db1-8543-0bfac495d42a",
+            "consumerInstance": "drools",
+            "fetchLimit": 100,
+            "fetchTimeout": 15000,
+            "locked": false,
+            "recentEvents": [],
+            "servers": [
+                "vm1.mr.simpledemo.openecomp.org"
+            ],
+            "topic": "BRMSGW-POLICY",
+            "topicCommInfrastructure": "UEB",
+            "useHttps": false
+        },
+        {
+            "alive": true,
+            "allowSelfSignedCerts": false,
+            "apiKey": "",
+            "apiSecret": "",
+            "consumerGroup": "7145e0ca-e91c-4b79-84bf-8ae6bac1b8f8",
+            "consumerInstance": "drools",
+            "fetchLimit": 100,
+            "fetchTimeout": 15000,
+            "locked": false,
+            "recentEvents": [],
+            "servers": [
+                "vm1.mr.simpledemo.openecomp.org"
+            ],
+            "topic": "unauthenticated.DCAE_CL_OUTPUT",
+            "topicCommInfrastructure": "UEB",
+            "useHttps": false
+        },
+        {
+            "alive": true,
+            "allowSelfSignedCerts": false,
+            "apiKey": "",
+            "apiSecret": "",
+            "consumerGroup": "5e614d90-14f4-4838-95db-ff4f1c3da565",
+            "consumerInstance": "drools",
+            "fetchLimit": 100,
+            "fetchTimeout": 15000,
+            "locked": false,
+            "recentEvents": [],
+            "servers": [
+                "vm1.mr.simpledemo.openecomp.org"
+            ],
+            "topic": "APPC-CL",
+            "topicCommInfrastructure": "UEB",
+            "useHttps": false
+        },
+        {
+            "alive": true,
+            "allowSelfSignedCerts": false,
+            "apiKey": "",
+            "apiSecret": "",
+            "consumerGroup": "38ab6ab1-6a69-428d-a083-1bf7c285a1d7",
+            "consumerInstance": "drools",
+            "fetchLimit": 100,
+            "fetchTimeout": 15000,
+            "locked": false,
+            "recentEvents": [],
+            "servers": [
+                "vm1.mr.simpledemo.openecomp.org"
+            ],
+            "topic": "APPC-LCM-WRITE",
+            "topicCommInfrastructure": "UEB",
+            "useHttps": false
+        }
+    ]
+}
+
+*** To check the received events: topicSources
+	
+*** To check the delivered events : the topicSinks, 
+	"recentEvents" : ...
+	"servers": [
+                "vm1.mr.simpledemo.openecomp.org"
+            ],
+	"topic": "APPC-LCM-READ",
+	"topicCommInfrastructure": "UEB",
+****** tips:
+	t1, topicCommInfrastructure must be UEB (or DMAAP?) to publish the event to DMAAP
+	t2, 'timestamp' of each event in "recentEvents" will indicate when the event was published
+
+
+	
+2, check the policy rules for controller "beijing"
+
+	$ curl --silent --user @1b3rt:31nst31n -X GET http://$POLICY_IP:9696/policy/pdp/engine/controllers/beijing/drools/facts/beijing | python -m json.tool
+	
+3, policy stop/start
+	
+	$ ssh -o StrictHostKeychecking=no -i /home/wruser/.ssh/onap_key ubuntu@$POLICY_IP
+	$ sudo  docker exec -it drools bash
+		$ policy stop
+		$ policy start
+		$ exit
+
+4, check log file
+	$ sudo docker exec -it drools bash
+	$ tail -f /var/log/onap/policy/pdpd/*.log
+
+5, policy input simulation:
+
+export DMMAP_IP=10.12.6.210
+
+$ curl -X POST \
+  http://$DMMAP_IP:3904/events/unauthenticated.DCAE_CL_OUTPUT \
+  -H 'Cache-Control: no-cache' \
+  -H 'Content-Type: application/json' \
+  -H 'Postman-Token: 54c627dd-9d97-4192-a914-74a54872a2ae' \
+  -H 'X-FromAppId: 121' \
+  -H 'X-TransactionId: 9999' \
+  -d '{
+       "target": "generic-vnf.vnf-id",
+       "target_type": "VNF",
+       "AAI": {
+           "vserver.in-maint": false,
+           "vserver.is-closed-loop-disabled": false,
+           "vserver.prov-status": "ACTIVE",
+           "vserver.resource-version": "1536565578797",
+           "vserver.vserver-id": "726ce4c0-4f09-437c-8ecf-d509f1181f7c",
+           "vserver.vserver-name": "zdfw1lb01lb01",
+           "vserver.vserver-name2": "zdfw1lb01lb01",
+           "vserver.vserver-selflink": "http://10.12.25.2:8774/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/726ce4c0-4f09-437c-8ecf-d509f1181f7c",
+           "generic-vnf.vnf-id": "69bc974a-50b7-4a61-bc5d-dc1728a3fe89",
+		   "generic-vnf.vnf-type": "vLB 2018-09-05 12:41:46/e1b6744d-d69a-4c4e-a8b3 0",
+		   "generic-vnf.vnf-name": "vlb-vnf-7",
+		   "generic-vnf.in-maint": false,
+		   "generic-vnf.service-id": "946df442-7216-4893-a682-9f9c38547b01",
+		   "generic-vnf.is-closed-loop-disabled": false,
+		   "generic-vnf.resource-version": "1536565574270",
+		   "generic-vnf.orchestration-status": "Active",
+		   "generic-vnf.prov-status": "PROV",
+           "service-instance.service-instance-id": "a63f7160-98da-4965-9cdd-2088b9fe50d0"
+       },
+       "closedLoopAlarmStart": 1484855291527925,
+       "closedLoopEventStatus": "ONSET",
+       "closedLoopControlName": "ControlLoop-EdgeTest-38f0c2c3-a172-4192-9ae3-052274181b6f",
+       "version": "1.0.2",
+       "requestID": "8c1b8bd8-06f7-493f-8ed7-daaa4cc481bc",
+       "from": "DCAE"
+}'
+
+

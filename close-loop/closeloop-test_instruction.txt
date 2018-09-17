@@ -1,0 +1,13 @@
+### Prerequisite
+1, vLB (service/generic VNF/VF Module) is orchestrated successfully
+2, vLB VF Module has been bridged into AAI
+3, Mocking Policy actor, Policy, Holmes rules (at central cloud), MultiCloud VESagent (at edge cloud) are provisioned correctly
+
+### Simulate the VM fault
+1, Login to Edge Cloud Dashboard (Horizon)
+2, Locate the monitored VM (e.g. "zdfw1lb01dns01" which is provisioned into VESagent)
+3, Pause or stop the VM
+4, Observing the VM is restarted (by the setup ONAP close loop control)
+
+
+

@@ -6,7 +6,7 @@ $ cd onap-multicloud-edge-demo/docker4dmaapclient
 $ sudo docker build -t openstack-dmaapclient:latest .
 
 2, launch docker container:
-### make sure the docker container runs on ONAP VMs which has access to other ONAP VMs (aai, message router, etc.)
+### make sure the docker container runs on ONAP VMs (vm0-multi-service) which has access to other ONAP VMs (aai, message router, etc.)
 
 export DMAAP_IP=10.0.11.1
 
@@ -35,6 +35,11 @@ curl -v -s -H "Content-Type: application/json" -X GET  http://$MULTISERVICE_IP:$
 curl -v -s -H "Content-Type: application/json" -X DELETE  http://$MULTISERVICE_IP:$DC_EP_PORT/api/multicloud-dmaapclient/v1/dmaapclient
 
 
-### dmaapclient:
+### exercise dmaapclient:
 
 curl -v -s -H "Content-Type: application/json" http://$MULTISERVICE_IP:$DC_EP_PORT/api/multicloud-dmaapclient/v1/dmaapclient -X POST -d '{"dmaapclient_config":{"topic_subscribe_url":"http://$DMAAP_IP:3904/events/APPC-LCM-READ/dmaapclient/304?timeout=6000&limit=10&filter="} }'
+
+curl -v -s -H "Content-Type: application/json" -X GET  http://$MULTISERVICE_IP:$DC_EP_PORT/api/multicloud-dmaapclient/v1/dmaapclient
+
+curl -v -s -H "Content-Type: application/json" -X DELETE  http://$MULTISERVICE_IP:$DC_EP_PORT/api/multicloud-dmaapclient/v1/dmaapclient
+
