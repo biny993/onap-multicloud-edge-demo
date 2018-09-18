@@ -1,0 +1,107 @@
+### Prerequisite
+1, vLB (service/generic VNF/VF Module) is orchestrated successfully
+2, vLB VF Module has been bridged into AAI
+3, Mocking Policy actor, Policy, Holmes rules (at central cloud), MultiCloud VESagent (at edge cloud) are provisioned correctly
+
+### Simulate the VM fault
+1, Login to Edge Cloud Dashboard (Horizon)
+2, Locate the monitored VM (e.g. "zdfw1lb01dns01" which is provisioned into VESagent)
+3, Stop the VM
+4, Observing the VM is restarted (by the setup ONAP close loop control)
+
+
+
+### Checkpoints
+
+export DMAAP_IP=10.12.6.210
+
+1, DMaaP Topic: "unauthenticated.SEC_FAULT_OUTPUT"
+
+curl -X GET \
+  'http://$DMAAP_IP:3904/events/unauthenticated.SEC_FAULT_OUTPUT/EVENT-LISTENER-POSTMAN/304?timeout=6000&limit=10&filter=' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Content-Type: application/json' \
+  -H 'Postman-Token: 4e2e3589-d742-48c7-8d48-d1b3577df259' \
+  -H 'X-FromAppId: 121' \
+  -H 'X-TransactionId: 9999'
+
+[
+    "{\"event\":{\"commonEventHeader\":{\"startEpochMicrosec\":1537235707517905,\"sourceId\":\"8e606aa7-39c8-4df7-b2f4-1f6785b9f682\",\"eventId\":\"8d71f66b-b50a-423e-9eae-c64d52d01ad3\",\"reportingEntityId\":\"CloudOwner_pod01\",\"internalHeaderFields\":{\"collectorTimeStamp\":\"Tue, 09 18 2018 01:55:08 GMT\"},\"eventType\":\"\",\"priority\":\"High\",\"version\":3,\"reportingEntityName\":\"CloudOwner_pod01\",\"sequence\":0,\"domain\":\"fault\",\"lastEpochMicrosec\":1537235707517905,\"eventName\":\"Fault_MultiCloud_VMFailure\",\"sourceName\":\"zdfw1lb01dns01\"},\"faultFields\":{\"eventSeverity\":\"CRITICAL\",\"alarmCondition\":\"Guest_Os_Failure\",\"faultFieldsVersion\":2,\"specificProblem\":\"Fault_MultiCloud_VMFailure\",\"alarmInterfaceA\":\"aaaa\",\"alarmAdditionalInformation\":[{\"name\":\"objectType\",\"value\":\"VIM\"},{\"name\":\"eventTime\",\"value\":\"2018-09-18 01:55:07.517968\"}],\"eventSourceType\":\"virtualMachine\",\"vfStatus\":\"Active\"}}}"
+
+    "{\"event\":{\"commonEventHeader\":{\"startEpochMicrosec\":1537235707517905,\"sourceId\":\"8e606aa7-39c8-4df7-b2f4-1f6785b9f682\",\"eventId\":\"8d71f66b-b50a-423e-9eae-c64d52d01ad3\",\"reportingEntityId\":\"CloudOwner_pod01\",\"internalHeaderFields\":{\"collectorTimeStamp\":\"Tue, 09 18 2018 01:55:31 GMT\"},\"eventType\":\"\",\"priority\":\"Normal\",\"version\":3,\"reportingEntityName\":\"CloudOwner_pod01\",\"sequence\":1,\"domain\":\"fault\",\"lastEpochMicrosec\":1537235730229432,\"eventName\":\"Fault_MultiCloud_VMFailureCleared\",\"sourceName\":\"zdfw1lb01dns01\"},\"faultFields\":{\"eventSeverity\":\"NORMAL\",\"alarmCondition\":\"Vm_Restart\",\"faultFieldsVersion\":2,\"specificProblem\":\"Fault_MultiCloud_VMFailure\",\"alarmInterfaceA\":\"aaaa\",\"alarmAdditionalInformation\":[{\"name\":\"objectType\",\"value\":\"VIM\"},{\"name\":\"eventTime\",\"value\":\"2018-09-18 01:55:30.229459\"}],\"eventSourceType\":\"virtualMachine\",\"vfStatus\":\"Active\"}}}"
+]
+
+
+2, DMaaP Topic: "unauthenticated.DCAE_CL_OUTPUT"
+
+curl -X GET \
+  'http://$DMAAP_IP:3904/events/unauthenticated.DCAE_CL_OUTPUT/EVENT-LISTENER-POSTMAN/304?timeout=6000&limit=10&filter=' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Content-Type: application/json' \
+  -H 'Postman-Token: bf55802f-fdef-4942-9adf-12d022e4f395' \
+  -H 'X-FromAppId: 121' \
+  -H 'X-TransactionId: 9999'
+
+[
+    "{\"closedLoopEventClient\":\"DCAE.HolmesInstance\",\"closedLoopAlarmEnd\":0,\"requestID\":\"971f3210-0404-43fe-8e68-070f5b454d24\",\"target_type\":\"VM\",\"AAI\":{\"vserver.prov-status\":\"SHUTOFF\",\"vserver.resource-version\":\"1537030687394\",\"vserver.is-closed-loop-disabled\":false,\"vserver.vserver-name2\":\"zdfw1lb01dns01\",\"vserver.vserver-id\":\"8e606aa7-39c8-4df7-b2f4-1f6785b9f682\",\"vserver.vserver-selflink\":\"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/8e606aa7-39c8-4df7-b2f4-1f6785b9f682\",\"vserver.in-maint\":false,\"vserver.vserver-name\":\"zdfw1lb01dns01\",\"generic-vnf.vnf-id\":\"\",\"generic-vnf.service-instance-id\":\"\"},\"from\":\"DCAE\",\"closedLoopAlarmStart\":1537235707517905,\"closedLoopEventStatus\":\"ONSET\",\"version\":\"1.0.2\",\"closedLoopControlName\":\"ControlLoop-vCPE-48f0c2c3-a172-4192-9ae3-052274181b6e\",\"target\":\"vserver.vserver-name\"}"
+]
+
+3, DMaaP Topic: "APPC-LCM-READ"
+
+curl -X GET \
+  'http://$DMAAP_IP:3904/events/APPC-LCM-READ/EVENT-LISTENER-POSTMAN/304?timeout=6000&limit=10&filter=' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Content-Type: application/json' \
+  -H 'Postman-Token: 219a1fa6-d250-469b-b253-4d3001826815' \
+  -H 'X-FromAppId: 121' \
+  -H 'X-TransactionId: 9999'
+
+[
+    "{\n  \"body\": {\n    \"input\": {\n      \"common-header\": {\n        \"timestamp\": \"2018-09-18T01:55:09.056Z\",\n        \"api-ver\": \"2.00\",\n        \"originator-id\": \"971f3210-0404-43fe-8e68-070f5b454d24\",\n        \"request-id\": \"971f3210-0404-43fe-8e68-070f5b454d24\",\n        \"sub-request-id\": \"1\",\n        \"flags\": {}\n      },\n      \"action\": \"Restart\",\n      \"action-identifiers\": {\n        \"vnf-id\": \"zdfw1lb01dns01\"\n      }\n    }\n  },\n  \"version\": \"2.0\",\n  \"rpc-name\": \"restart\",\n  \"correlation-id\": \"971f3210-0404-43fe-8e68-070f5b454d24-1\",\n  \"type\": \"request\"\n}"
+]
+
+
+4, dmaapclient Log:
+### login "vm0-multi-service" VM
+sudo docker logs -f openstack-dmaapclient
+
+2018-09-18 01:55:09|||||dmaapclient.be.tasks||140443171116800||handleDmaapEvent||DEBUG||restart the vserver: zdfw1lb01dns01||||requestID= invocationID= serviceName= serviceIP= 
+2018-09-18 01:55:09|||||common.utils.restcall||140443171116800||_call_req||INFO||Making rest call with uri,method, header = https://10.12.6.175:8443/aai/v13/search/nodes-query?search-node-type=vserver&filter=vserver-name:EQUALS:zdfw1lb01dns01, GET, {'X-FromAppId': 'MultiCloud-DmaapClient', 'X-TransactionId': '9003', 'Authorization': u'Basic QUFJOkFBSQ==', 'content-type': 'application/json', 'accept': 'application/json'}||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:09|||||common.utils.restcall||140443171116800||_call_req||DEBUG||with content = ""||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:09|||||common.utils.restcall||140443171116800||_call_req||INFO||Rest call finished with status = 200||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:09|||||common.utils.restcall||140443171116800||_call_req||DEBUG||with response content = {"result-data":[{"resource-type":"vserver","resource-link":"/aai/v13/cloud-infrastructure/cloud-regions/cloud-region/CloudOwner/pod01/tenants/tenant/0e148b76ee8c42f78d37013bf6b7b1ae/vservers/vserver/8e606aa7-39c8-4df7-b2f4-1f6785b9f682"}]}||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:09|||||dmaapclient.be.tasks||140443171116800||handleDmaapEvent||DEBUG||resource-link: /aai/v13/cloud-infrastructure/cloud-regions/cloud-region/CloudOwner/pod01/tenants/tenant/0e148b76ee8c42f78d37013bf6b7b1ae/vservers/vserver/8e606aa7-39c8-4df7-b2f4-1f6785b9f682||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:09|||||common.utils.restcall||140443171116800||_call_req||INFO||Making rest call with uri,method, header = http://10.12.7.25:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/identity/v2.0/tokens, POST, {'content-type': 'application/json', 'accept': 'application/json'}||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:09|||||common.utils.restcall||140443171116800||_call_req||DEBUG||with content = {}||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:09|||||common.utils.restcall||140443171116800||_call_req||INFO||Rest call finished with status = 200||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:09|||||common.utils.restcall||140443171116800||_call_req||DEBUG||with response content = {"access":{"token":{"issued_at":"2018-09-18T01:55:09.000000Z","expires":"2018-09-18T02:55:09.000000Z","id":"gAAAAABboFr9p5RLYiPQU1l1RmMPqNFRahBnP1L9_JADuKasI9jC9GLNSO7OC1-l9WwyuYiHZHjtyKMFonOM7MX_QLTMVsOciUkYczf7stVLK7vwb-p2AjxVdz2nK74GKrCriEHocemAaReVRNIrfeVDYVgWZPvAA7eUBrXLJ4sVBzQchGm3UI0","tenant":{"domain":{"id":"default","name":"Default"},"enabled":"true","id":"0e148b76ee8c42f78d37013bf6b7b1ae","name":"VIM"}},"serviceCatalog":[{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/network","id":"4a651f2dff9e40678f3807c916942ae8","region_id":"RegionOne"}],"type":"network","name":"neutron"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/identity/v3","id":"f5315d6b81d545c580fa5cfb9f92f737","region_id":"RegionOne"}],"type":"identity","name":"keystone"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/nfv","id":"5d004c0a620148a4bffe0da6bb418999","region_id":"RegionOne"}],"type":"nfv","name":"vim"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/metering","id":"59ea1bbf00c04bd5aa8271038e758de4","region_id":"RegionOne"}],"type":"metering","name":"ceilometer"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/orchestration/v1/0e148b76ee8c42f78d37013bf6b7b1ae","id":"1332108572d141eeb4cd85099c67c41b","region_id":"RegionOne"}],"type":"orchestration","name":"heat"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/volumev2/v2/0e148b76ee8c42f78d37013bf6b7b1ae","id":"8ee0092207f040ae87dc812e8cc66261","region_id":"RegionOne"}],"type":"volumev2","name":"cinderv2"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/volume/v1/0e148b76ee8c42f78d37013bf6b7b1ae","id":"614735aa8f5546f687f21fed80bce5e3","region_id":"RegionOne"}],"type":"volume","name":"cinder"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/image","id":"7f02656c39a4432aaed70f448c5a4466","region_id":"RegionOne"}],"type":"image","name":"glance"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/alarming","id":"4bd4a97f1c4c442bb7ee0e370a98db6f","region_id":"RegionOne"}],"type":"alarming","name":"aodh"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/patching","id":"a97af6a2093141d2b7296a707a81136b","region_id":"RegionOne"}],"type":"patching","name":"patching"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/platform/v1","id":"6398084870eb4eaa862bfd7881fc02fa","region_id":"RegionOne"}],"type":"platform","name":"sysinv"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae","id":"35da096905214894b364bd882bc8a773","region_id":"RegionOne"}],"type":"compute","name":"nova"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/volumev3/v3/0e148b76ee8c42f78d37013bf6b7b1ae","id":"9c796bd9341d4d8da628d18e69677fac","region_id":"RegionOne"}],"type":"volumev3","name":"cinderv3"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/cloudformation/v1/0e148b76ee8c42f78d37013bf6b7b1ae","id":"33fdb47d61f744fdbeec57f78b45c8c2","region_id":"RegionOne"}],"type":"cloudformation","name":"heat-cfn"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/placement","id":"a3db20b660be4056900a199ea4a65767","region_id":"RegionOne"}],"type":"placement","name":"placement"},{"endpoints":[{"interface":"public","region":"RegionOne","publicURL":"http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/event","id":"0f3e992e647e46a6ba17383ffbe25604","region_id":"RegionOne"}],"type":"event","name":"panko"}],"user":{"id":"ba76c94eb5e94bb7bec6980e5507aae2","domain":{"id":"default","name":"Default"},"password_expires_at":null,"name":"demo"}}}||||requestID= invocationID= serviceName= serviceIP= 
+2018-09-18 01:55:09|||||dmaapclient.be.tasks||140443171116800||handleDmaapEvent||INFO||stop vserver, URI:/servers/8e606aa7-39c8-4df7-b2f4-1f6785b9f682/action||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:09|||||common.utils.restcall||140443171116800||_call_req||INFO||Making rest call with uri,method, header = http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/8e606aa7-39c8-4df7-b2f4-1f6785b9f682/action, POST, {'content-type': 'application/json', 'accept': 'application/json', 'X-Auth-Token': u'gAAAAABboFr9p5RLYiPQU1l1RmMPqNFRahBnP1L9_JADuKasI9jC9GLNSO7OC1-l9WwyuYiHZHjtyKMFonOM7MX_QLTMVsOciUkYczf7stVLK7vwb-p2AjxVdz2nK74GKrCriEHocemAaReVRNIrfeVDYVgWZPvAA7eUBrXLJ4sVBzQchGm3UI0'}||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:09|||||common.utils.restcall||140443171116800||_call_req||DEBUG||with content = {"os-stop": {}}||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:09|||||common.utils.restcall||140443171116800||_call_req||INFO||Rest call finished with status = 409||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:09|||||common.utils.restcall||140443171116800||_call_req||DEBUG||with response content = {"conflictingRequest":{"message":"Cannot 'stop' instance 8e606aa7-39c8-4df7-b2f4-1f6785b9f682 while it is in vm_state stopped","code":409}}||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:09|||||common.msapi.helper||140443171116800||MultiCloudServiceHelper||CRITICAL||call url http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/8e606aa7-39c8-4df7-b2f4-1f6785b9f682/action failed with status 1||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:19|||||dmaapclient.be.tasks||140443171116800||handleDmaapEvent||INFO||stop vserver, URI:/servers/8e606aa7-39c8-4df7-b2f4-1f6785b9f682/action||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:19|||||common.utils.restcall||140443171116800||_call_req||INFO||Making rest call with uri,method, header = http://10.0.14.1:80/api/multicloud-titaniumcloud/v1/CloudOwner/pod01/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/8e606aa7-39c8-4df7-b2f4-1f6785b9f682/action, POST, {'content-type': 'application/json', 'accept': 'application/json', 'X-Auth-Token': u'gAAAAABboFr9p5RLYiPQU1l1RmMPqNFRahBnP1L9_JADuKasI9jC9GLNSO7OC1-l9WwyuYiHZHjtyKMFonOM7MX_QLTMVsOciUkYczf7stVLK7vwb-p2AjxVdz2nK74GKrCriEHocemAaReVRNIrfeVDYVgWZPvAA7eUBrXLJ4sVBzQchGm3UI0'}||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:19|||||common.utils.restcall||140443171116800||_call_req||DEBUG||with content = {"os-start": {}}||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:20|||||common.utils.restcall||140443171116800||_call_req||INFO||Rest call finished with status = 202||||requestID= invocationID= serviceName= serviceIP= 	
+2018-09-18 01:55:20|||||common.utils.restcall||140443171116800||_call_req||DEBUG||with response content = ||||requestID= invocationID= serviceName= serviceIP= 	
+
+
+5, Horizon
+Horizon/Instance/"zdfw1lb01dns01"/Action Log:
+
+
+req-7c599cea-070c-453f-bab7-5d6c2b3d6d9f	Start	Sept. 17, 2018, 5:55 p.m.	ba76c94eb5e94bb7bec6980e5507aae2	-
+req-212a8e67-9313-4f4c-8a8d-7d4ce1252181	Stop	Sept. 17, 2018, 5:54 p.m.	ba76c94eb5e94bb7bec6980e5507aae2	-
+
+
+### Debug Tips
+
+1, Whenever Holmes does not react to the onset message, reset the containers and then privison the rules again
+
+2, If policy service does not work properly, just restart the policy VM, provision the policy rules again.
+
+3, DmaapClient might observe DMaaP complain too many request, this can be reset by delete the rules and apply it again.
+
+
