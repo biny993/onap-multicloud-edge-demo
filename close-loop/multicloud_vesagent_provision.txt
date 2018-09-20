@@ -16,5 +16,5 @@ curl -v -s -H "Content-Type: application/json" $MC_EP/vesagent -X GET
 
 ### example:
 
-curl -v -s -H "Content-Type: application/json" $MC_EP/vesagent -X POST -d '{"vesagent_config":{"backlogs":[{"source":"zdfw1lb01dns01","domain":"fault","type":"vm","tenant":"VIM"}],"poll_interval_default":10,"ves_subscription":{"username":"admin","password":"admin","endpoint":"http://10.12.6.55:8081/eventListener/v5"}}}'
+curl -v -s -H "Content-Type: application/json" $MC_EP/vesagent -X POST -d '{"vesagent_config":{"backlogs":[{"source":"zdfw1lb02pg01","domain":"fault","type":"vm","tenant":"edge1"},{"source":"zdfw1lb02lb01","domain":"fault","type":"vm","tenant":"edge1"},{"source":"zdfw1lb02dns01","domain":"fault","type":"vm","tenant":"edge1"}],"poll_interval_default":10,"ves_subscription":{"username":"admin","password":"admin","endpoint":"http://10.12.6.55:8081/eventListener/v5"}}}'
 
