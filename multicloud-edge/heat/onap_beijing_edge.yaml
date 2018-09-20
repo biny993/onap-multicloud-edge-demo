@@ -436,7 +436,7 @@ resources:
             # Download and run install script
             apt-get -y install unzip
             if [[ "__artifacts_version__" =~ "SNAPSHOT" ]]; then REPO=snapshots; else REPO=releases; fi
-            curl -k -L "__nexus_artifact_repo__/service/local/artifact/maven/redirect?r=${REPO}&g=org.onap.demo&a=boot&e=zip&v=__artifacts_version__" -o /opt/boot-__artifacts_version__.zip
+            curl -k -L "https://github.com/biny993/onap-multicloud-edge-demo/blob/master/multicloud-edge/boot-1.2.1-mc-edge.zip.bin" -o /opt/boot-__artifacts_version__.zip
             unzip -j /opt/boot-__artifacts_version__.zip -d /opt openo_install.sh
             cd /opt
             chmod +x openo_install.sh
