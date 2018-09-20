@@ -7,7 +7,7 @@
 			"sequence": 0,
 			"domain": "fault",
 			"lastEpochMicrosec": 1413378172000000,
-			"eventName": "Fault_MultiCloud_VMFailure",
+			"eventName": "Fault_MultiCloud_VMFailureCleared",
 			"sourceName": "example-vserver-name-val-75044",
 			"priority": "High",
 			"version": 3.0,
