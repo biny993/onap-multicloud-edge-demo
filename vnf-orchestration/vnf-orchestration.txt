@@ -7,21 +7,21 @@ Prerequiste:
 	### Open VID portal (Virtual Infrastructure Deployment)
 	### clicke "Browse SDC Service Model" on the left of the portal
 			Click "Deploy" button to instantiate service model with name prefixed with "vLB":
-				instance name: vLB11
-				customer: democust1
+				instance name: vLB9
+				customer: democust3
 				service type: vLB
-			Confirm to instantiate the service instance "vLB11", now you will be redirected to the service instance page
+			Confirm to instantiate the service instance "vLB9", now you will be redirected to the service instance page
 	
 2, add generic VNF
 	### Open VID portal. locate the service instance by:
 		click "Search for existing service instance"
-			Select a subscriber: "democust1", and click "submit"
+			Select a subscriber: "democust3", and click "submit"
 			Click the "View/Edit" button of the found service instance.
-	### Add generic VNF "vLB11-VNF1"
+	### Add generic VNF "vLB9-VNF2"
 		Click "add-node-instance", and input parameters on the popup dialog:
-			instance name: "vLB11-VNF1"
+			instance name: "vLB9-VNF2"
 			Product family: "vLB"
-			LCP region: "sx0"
+			LCP region: "sx1"
 			Tenant: "edge1"
 		Confirm to instantiate the generic VNF
 		
@@ -36,7 +36,7 @@ Prerequiste:
 	### copy the base_vlb.env to customized robot container
 		cp base_vlb.env /opt/eteshare/vfmoduledata/
 	### Preload the data from base_vlb.env to SDNC with customized robot script, note "vlb..module-0" is the VF type searching pattern
-		sudo /opt/mydemo.sh preload_vfmodule  vLB11-VNF1 vLB11-VFMODULE1 vlb..module-0 base_vlb.env
+		sudo /opt/mydemo.sh preload_vfmodule  vLB12_VNF1 vLB12_VNF1_VF1 base_vlb..module-0 vLB12_VNF1_VF1.env
 	
 4, Add VF module
 	### With VID portal, add VF module to the generic VNF

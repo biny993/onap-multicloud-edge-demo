@@ -25,7 +25,7 @@ DISCOVERY_IP=`sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAd
 docker run -d -p 80:80 -p 443:443  -e CONSUL_IP=$CONSUL_IP -e SDCLIENT_IP=$DISCOVERY_IP -e "ROUTE_LABELS=visualRange:0|1" --name msb_apigateway $NEXUS_DOCKER_REPO/onap/msb/msb_apigateway:$DOCKER_IMAGE_VERSION
 
 # Allow the MSB container to come up before registering services
-sleep 20
+sleep 200
 
 # register ONAP services to MSB
 #aai
