@@ -61,7 +61,7 @@ unzip -p -j /opt/boot-$ARTIFACTS_VERSION.zip mvim_vm_init.sh > /opt/mvim_vm_init
 unzip -p -j /opt/boot-$ARTIFACTS_VERSION.zip openo_all_serv.sh > /opt/openo_all_serv.sh
 unzip -p -j /opt/boot-$ARTIFACTS_VERSION.zip openo_serv.sh > /opt/openo_serv.sh
 #unzip -p -j /opt/boot-$ARTIFACTS_VERSION.zip cli_install.sh > /opt/cli_install.sh
-#unzip -p -j /opt/boot-$ARTIFACTS_VERSION.zip esr_vm_init.sh > /opt/esr_vm_init.sh
+unzip -p -j /opt/boot-$ARTIFACTS_VERSION.zip esr_vm_init.sh > /opt/esr_vm_init.sh
 #chmod +x /opt/vnfsdk_vm_init.sh
 chmod +x /opt/msb_vm_init.sh
 chmod +x /opt/mvim_vm_init.sh
@@ -70,7 +70,7 @@ chmod +x /opt/mvim_vm_init.sh
 chmod +x /opt/openo_all_serv.sh
 chmod +x /opt/openo_serv.sh
 #chmod +x /opt/cli_install.sh
-#chmod +x /opt/esr_vm_init.sh
+chmod +x /opt/esr_vm_init.sh
 mv /opt/openo_serv.sh /etc/init.d
 update-rc.d openo_serv.sh defaults
 
