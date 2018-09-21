@@ -29,14 +29,14 @@ Prerequiste:
 	### before you Add a VF Module for a generic VNF, you need to preload the VF data to SDNC
 	### With the the vLB heat env file "base_vlb.env" , populate the heat env file with correct value
 		### login to robot VM
-		$ git clone https://gerrit.onap.org/r/demo
-		$ cd demo/heat/vLB
-		$ vi base_vlb.env
+		git clone https://gerrit.onap.org/r/demo
+		cd demo/heat/vLB
+		vi base_vlb.env
 			### populate parameters
 	### copy the base_vlb.env to customized robot container
-		$ cp base_vlb.env /opt/eteshare/vfmoduledata/
+		cp base_vlb.env /opt/eteshare/vfmoduledata/
 	### Preload the data from base_vlb.env to SDNC with customized robot script, note "vlb..module-0" is the VF type searching pattern
-		$ sudo /opt/mydemo.sh preload_vfmodule  vLB11-VNF1 vLB11-VFMODULE1 vlb..module-0 base_vlb.env
+		sudo /opt/mydemo.sh preload_vfmodule  vLB11-VNF1 vLB11-VFMODULE1 vlb..module-0 base_vlb.env
 	
 4, Add VF module
 	### With VID portal, add VF module to the generic VNF
@@ -57,11 +57,11 @@ Prerequiste:
 	### once the stack is created completed
 	### Login to robot VM and issue the curl command:
 		
-		$ export STACK_ID=<heat stack id for the VF Module>
-		$ export MULTISERVICE_IP=10.0.14.1
-		$ export MSB_EP_PORT=80
-		$ export MC_EP=http://$MULTISERVICE_IP:$MC_EP_PORT/api/multicloud-titaniumcloud/v1/CloudOwner/sx0
-		$ curl -v -s -H "Content-Type: application/json" -X GET  $MC_EP/infra_workload/$STACK_ID
+		export STACK_ID=<heat stack id for the VF Module>
+		export MULTISERVICE_IP=10.0.14.1
+		export MSB_EP_PORT=80
+		export MC_EP=http://$MULTISERVICE_IP:$MC_EP_PORT/api/multicloud-titaniumcloud/v1/CloudOwner/sx0
+		curl -v -s -H "Content-Type: application/json" -X GET  $MC_EP/infra_workload/$STACK_ID
 
 7, validate with postman/curl command
 	curl -X GET \

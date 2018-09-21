@@ -1,13 +1,13 @@
 Prerequist: init customer and models
     ### login to Robot VM
-	$ export ROBOT_IP=<robot VM IP>
-	$ ssh -o StrictHostKeychecking=no -i ~/.ssh/onap_key ubuntu@$ROBOT_IP
-	$ sudo /opt/mydemo.sh init
+	export ROBOT_IP=<robot VM IP>
+	ssh -o StrictHostKeychecking=no -i ~/.ssh/onap_key ubuntu@$ROBOT_IP
+	sudo /opt/mydemo.sh init
 
 1, Create complex: clli3, with latitude/longitude: 10/20
 
 	### login to Robot VM
-	$ sudo /opt/mydemo.sh add_complex clli3 10 20
+	sudo /opt/mydemo.sh add_complex clli3 10 20
 
 2, on-board/register the edge cloud to ONAP as a cloud region (CloudOwner/sx1)
 
@@ -37,16 +37,16 @@ Prerequist: init customer and models
 	### hacking SO cloud-site config file: 	(https://wiki.onap.org/pages/viewpage.action?pageId=25431491) 
 	
 	
-	$ login to SO VM:
-	$ export SO_IP=<SO_VM floating IP>
-	$ ssh -o StrictHostKeychecking=no -i /home/wruser/.ssh/onap_key ubuntu@$SO_IP
+	### login to SO VM:
+	export SO_IP=<SO_VM floating IP>
+	ssh -o StrictHostKeychecking=no -i /home/wruser/.ssh/onap_key ubuntu@$SO_IP
 	
 	### check the content of SO config file
-	$ cat /opt/test_lab/volumes/mso/chef-config/mso-docker.json
+	cat /opt/test_lab/volumes/mso/chef-config/mso-docker.json
 	
 	### Add following line in red to section "mso-po-adapter-config" in mso-docker.json
 	### Note: password can be any value since it is leveraging multicloud service.
-	$ sudo vi  /opt/test_lab/volumes/mso/chef-config/mso-docker.json
+	sudo vi  /opt/test_lab/volumes/mso/chef-config/mso-docker.json
 		"cloud_sites": [
 				{
 		          "aic_version": "2.5",
@@ -73,7 +73,7 @@ Prerequist: init customer and models
 		      ],
 
 	### restart SO container
-	$ sudo docker restart testlab_mso_1
+	sudo docker restart testlab_mso_1
 
 	### check hacked config
 	http://so.api.simpledemo.onap.org:8080/networks/rest/cloud/showConfig

@@ -3,47 +3,46 @@ https://wiki.onap.org/display/DW/ONAP+Policy+Framework%3A+Installation+of+Beijin
 
 *** install new policy:
 
-	$sudo docker exec -it drools bash
+	sudo docker exec -it drools bash
 	
-$ mkdir /tmp/apps-controlloop
-$ cd /tmp/apps-controlloop
-$ wget https://nexus.onap.org/content/repositories/releases/org/onap/policy/drools-applications/controlloop/packages/apps-controlloop/1.2.0/apps-controlloop-1.2.0.zip
+		mkdir /tmp/apps-controlloop
+		cd /tmp/apps-controlloop
+		wget https://nexus.onap.org/content/repositories/releases/org/onap/policy/drools-applications/controlloop/packages/apps-controlloop/1.2.0/apps-controlloop-1.2.0.zip
 
-$ unzip apps-controlloop-1.2.0.zip
+		unzip apps-controlloop-1.2.0.zip
 
-$ vi apps-controlloop-installer
-	Change the line
-	"features enable controlloop-amsterdam"
-	to
-	"features enable controlloop-beijing"
+		vi apps-controlloop-installer
+			### Change the line
+			"features enable controlloop-amsterdam"
+			to
+			"features enable controlloop-beijing"
 
-$ policy stop
+		policy stop
 
 
-$ features install controlloop-utils
-$ features enable controlloop-utils
-$ features enable controlloop-beijing
+		features install controlloop-utils
+		features enable controlloop-utils
+		features enable controlloop-beijing
 
-$ policy start
+		policy start
 
-$ curl --silent --user @1b3rt:31nst31n -X GET http://localhost:9696/policy/pdp/engine/controllers/beijing | python -m json.tool
+		curl --silent --user @1b3rt:31nst31n -X GET http://localhost:9696/policy/pdp/engine/controllers/beijing | python -m json.tool
 	
-$ curl --silent --user @1b3rt:31nst31n -X GET http://localhost:9696/policy/pdp/engine/controllers/beijing/drools/facts/beijing | python -m json.tool
+		curl --silent --user @1b3rt:31nst31n -X GET http://localhost:9696/policy/pdp/engine/controllers/beijing/drools/facts/beijing | python -m json.tool
+		
 
-{}
+		mkdir /tmp/basex-controlloop
+		cd /tmp/basex-controlloop
 
-$ mkdir /tmp/basex-controlloop
-$ cd /tmp/basex-controlloop
+		tar zxvf /tmp/apps-controlloop/basex-controlloop-1.2.0.tar.gz
 
-$ tar zxvf /tmp/apps-controlloop/basex-controlloop-1.2.0.tar.gz
+		bin/create-cl-beijing
 
-$ bin/create-cl-beijing
+			Template Control Loop Name> ControlLoop-vCPE-48f0c2c3-a172-4192-9ae3-052274181b6e
 
-	Template Control Loop Name> ControlLoop-vCPE-48f0c2c3-a172-4192-9ae3-052274181b6e
-
-	Control Loop Yaml> controlLoop%3A%0D%0A++version%3A+2.0.0%0D%0A++controlLoopName%3A+ControlLoop-vCPE-48f0c2c3-a172-4192-9ae3-052274181b6e%0D%0A++trigger_policy%3A+unique-policy-id-1-restart%0D%0A++timeout%3A+3600%0D%0A++abatement%3A+true%0D%0A+%0D%0Apolicies%3A%0D%0A++-+id%3A+unique-policy-id-1-restart%0D%0A++++name%3A+Restart+the+VM%0D%0A++++description%3A%0D%0A++++actor%3A+APPC%0D%0A++++recipe%3A+Restart%0D%0A++++target%3A%0D%0A++++++type%3A+VM%0D%0A++++retry%3A+3%0D%0A++++timeout%3A+1200%0D%0A++++success%3A+final_success%0D%0A++++failure%3A+final_failure%0D%0A++++failure_timeout%3A+final_failure_timeout%0D%0A++++failure_retries%3A+final_failure_retries%0D%0A++++failure_exception%3A+final_failure_exception%0D%0A++++failure_guard%3A+final_failure_guard
-	
-$ /tmp/beijing/beijing-controller.properties /opt/app/policy/config/beijing-controller.properties 
+			Control Loop Yaml> controlLoop%3A%0D%0A++version%3A+2.0.0%0D%0A++controlLoopName%3A+ControlLoop-vCPE-48f0c2c3-a172-4192-9ae3-052274181b6e%0D%0A++trigger_policy%3A+unique-policy-id-1-restart%0D%0A++timeout%3A+3600%0D%0A++abatement%3A+true%0D%0A+%0D%0Apolicies%3A%0D%0A++-+id%3A+unique-policy-id-1-restart%0D%0A++++name%3A+Restart+the+VM%0D%0A++++description%3A%0D%0A++++actor%3A+APPC%0D%0A++++recipe%3A+Restart%0D%0A++++target%3A%0D%0A++++++type%3A+VM%0D%0A++++retry%3A+3%0D%0A++++timeout%3A+1200%0D%0A++++success%3A+final_success%0D%0A++++failure%3A+final_failure%0D%0A++++failure_timeout%3A+final_failure_timeout%0D%0A++++failure_retries%3A+final_failure_retries%0D%0A++++failure_exception%3A+final_failure_exception%0D%0A++++failure_guard%3A+final_failure_guard
+			
+		cp /tmp/beijing/beijing-controller.properties /opt/app/policy/config/beijing-controller.properties 
 
 ### change topic sink infra
 
@@ -67,19 +66,18 @@ policy@drools:/tmp/basex-controlloop$ diff /tmp/beijing/beijing-controller.prope
 > ueb.sink.topics.APPC-LCM-READ.events.custom.gson=org.onap.policy.appclcm.util.Serialization,gson
 
 
-$ policy stop
-$ policy start
+			policy stop
+			policy start
 
-$ bin/push-policies-beijing
-	When the script prompts for the path to the properties file, enter the following
-		/opt/app/policy/config/beijing-controller.properties
+			bin/push-policies-beijing
+				### When the script prompts for the path to the properties file, enter the following
+					/opt/app/policy/config/beijing-controller.properties
 
-$ curl --silent --user @1b3rt:31nst31n -X GET http://localhost:9696/policy/pdp/engine/controllers/beijing/drools/facts/beijing | python -m json.tool
-
-
-{
- "org.onap.policy.controlloop.Params": 4
-}
+			curl --silent --user @1b3rt:31nst31n -X GET http://localhost:9696/policy/pdp/engine/controllers/beijing/drools/facts/beijing | python -m json.tool
+				### expected output:
+					{
+					 "org.onap.policy.controlloop.Params": 4
+					}
 
 ======= validation ======
 
@@ -113,5 +111,5 @@ curl -X POST \
        "from": "DCAE"
 }'
 
-$ curl --silent --user @1b3rt:31nst31n -X GET http://localhost:9696/policy/pdp/engine/controllers/beijing | python -m json.tool
+curl --silent --user @1b3rt:31nst31n -X GET http://localhost:9696/policy/pdp/engine/controllers/beijing | python -m json.tool
 

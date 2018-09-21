@@ -11,22 +11,7 @@ curl -v -s -H "Content-Type: application/json" http://$MULTISERVICE_IP:$DC_EP_PO
 
 curl -v -s -H "Content-Type: application/json" http://$MULTISERVICE_IP:$DC_EP_PORT/api/multicloud-dmaapclient/v1/dmaapclient -X GET
 
+
+
 ### Delete the event listening after test
 curl -v -s -H "Content-Type: application/json" http://$MULTISERVICE_IP:$DC_EP_PORT/api/multicloud-dmaapclient/v1/dmaapclient -X DELETE
-
-Note: DMaaP response with HTTP Error 429: Too many requests
-
-==> /var/log/onap/multicloud/openstack/dmaapclient/dmaapclient.log <==
-2018-09-18 01:33:01|||||dmaapclient.be.tasks||140443171116800||processDmaapMessage||DEBUG||dmaap response is: []||||requestID= invocationID= serviceName= serviceIP= 	
-2018-09-18 01:33:02|||||dmaapclient.be.tasks||140443171116800||dmaaplistner||DEBUG||dmaapclient_config: {u'topic_subscribe_url': u'http://10.0.11.1:3904/events/APPC-LCM-READ/dmaapclient/304?timeout=6000&limit=10&filter='}||||requestID= invocationID= serviceName= serviceIP= 	
-2018-09-18 01:33:10|||||dmaapclient.be.tasks||140443171116800||processDmaapMessage||DEBUG||dmaap response is: []||||requestID= invocationID= serviceName= serviceIP= 	
-2018-09-18 01:33:11|||||dmaapclient.be.tasks||140443171116800||dmaaplistner||DEBUG||dmaapclient_config: {u'topic_subscribe_url': u'http://10.0.11.1:3904/events/APPC-LCM-READ/dmaapclient/304?timeout=6000&limit=10&filter='}||||requestID= invocationID= serviceName= serviceIP= 	
-2018-09-18 01:33:18|||||dmaapclient.be.tasks||140443171116800||processDmaapMessage||DEBUG||dmaap response is: []||||requestID= invocationID= serviceName= serviceIP= 	
-2018-09-18 01:33:19|||||dmaapclient.be.tasks||140443171116800||dmaaplistner||DEBUG||dmaapclient_config: {u'topic_subscribe_url': u'http://10.0.11.1:3904/events/APPC-LCM-READ/dmaapclient/304?timeout=6000&limit=10&filter='}||||requestID= invocationID= serviceName= serviceIP= 	
-2018-09-18 01:33:26|||||dmaapclient.be.tasks||140443171116800||processDmaapMessage||DEBUG||dmaap response is: []||||requestID= invocationID= serviceName= serviceIP= 	
-2018-09-18 01:33:27|||||dmaapclient.be.tasks||140443171116800||dmaaplistner||DEBUG||dmaapclient_config: {u'topic_subscribe_url': u'http://10.0.11.1:3904/events/APPC-LCM-READ/dmaapclient/304?timeout=6000&limit=10&filter='}||||requestID= invocationID= serviceName= serviceIP= 	
-2018-09-18 01:33:34|||||dmaapclient.be.tasks||140443171116800||processDmaapMessage||ERROR||exception:HTTP Error 429: 429||||requestID= invocationID= serviceName= serviceIP= 	
-2018-09-18 01:33:35|||||dmaapclient.be.tasks||140443171116800||dmaaplistner||DEBUG||dmaapclient_config: {u'topic_subscribe_url': u'http://10.0.11.1:3904/events/APPC-LCM-READ/dmaapclient/304?timeout=6000&limit=10&filter='}||||requestID= invocationID= serviceName= serviceIP= 	
-2018-09-18 01:33:42|||||dmaapclient.be.tasks||140443171116800||processDmaapMessage||DEBUG||dmaap response is: []||||requestID= invocationID= serviceName= serviceIP= 	
-2018-09-18 01:33:43|||||dmaapclient.be.tasks||140443171116800||dmaaplistner||DEBUG||dmaapclient_config: {u'topic_subscribe_url': u'http://10.0.11.1:3904/events/APPC-LCM-READ/dmaapclient/304?timeout=6000&limit=10&filter='}||||requestID= invocationID= serviceName= serviceIP= 	
-
