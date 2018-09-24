@@ -6,6 +6,8 @@
 export MULTISERVICE_IP=10.12.11.22 <floating IP of MultiCloud VM>
 export MC_EP_PORT=80
 
+curl -v -s -H "Content-Type: application/json" http://$MULTISERVICE_IP:$MC_EP_PORT/api/multicloud/v0/swagger.json -X GET
+
 curl -v -s -H "Content-Type: application/json" http://$MULTISERVICE_IP:$MC_EP_PORT/api/multicloud-titaniumcloud/v0/swagger.json -X GET
 
 
