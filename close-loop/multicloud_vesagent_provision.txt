@@ -1,15 +1,17 @@
 !!! Note: This provision is to configure multicloud vesagent on edge cloud !!!
 
 ### Login to multicloud at edge cloud
-### provision vesagent to monitor specific VMs under specific tenant
 
+export MC_EDGE_IP=10.12.11.22 <floating IP of multicloud@edge VM>
+ssh -o StrictHostKeychecking=no -i ~/.ssh/onap_key ubuntu@$MC_EDGE_IP
+
+### provision vesagent to monitor specific VMs under specific tenant
 ### make sure to use DCAE VM's Floating IP as VES_COLLECTOR_IP
 export VES_COLLECTOR_IP= <DCAE VM's Floating IP, e.g. 10.12.6.55>
 export MULTISERVICE_IP=10.0.14.1
 export MC_EP_PORT=9005
 export MC_EP=http://$MULTISERVICE_IP:$MC_EP_PORT/api/multicloud-titaniumcloud/v1/CloudOwner/sx1
 export MC_EP=http://$MULTISERVICE_IP:$MC_EP_PORT/api/multicloud-titaniumcloud/v0/CloudOwner_sx1
-
 
 curl -v -s -H "Content-Type: application/json" $MC_EP/vesagent -X POST -d '{"vesagent_config":{"backlogs":[{"source":"<VM name, e.g. zdfw1lb01dns01>","domain":"fault","type":"vm","tenant":"edge1"}],"poll_interval_default":10,"ves_subscription":{"username":"admin","password":"admin","endpoint":"http://<DCAE VM's Floating IP, e.g. 10.12.6.55>:8081/eventListener/v5"}}}'
 
