@@ -1,6 +1,6 @@
 Prerequist: init customer and models
     ### login to Robot VM
-	export ROBOT_IP=10.12.7.41<robot VM IP>
+	export ROBOT_IP=10.12.7.41 <robot VM IP>
 	ssh -o StrictHostKeychecking=no -i ~/.ssh/onap_key ubuntu@$ROBOT_IP
 	sudo /opt/mydemo.sh init
 
@@ -11,7 +11,7 @@ Prerequist: init customer and models
 
 2, on-board/register the edge cloud to ONAP as a cloud region (CloudOwner/sx1)
 
-	### using ESR GUI Portal, on-board a cloud region: (CloudOwner/sx0, tenant name: edge1)
+	### using ESR GUI Portal, on-board a cloud region: (CloudOwner/sx1, tenant name: edge1)
 
 		a, browse URL: http://msb.api.simpledemo.onap.org/iui/aai-esr-gui/extsys/vim/vimView.html
 		
@@ -19,7 +19,7 @@ Prerequist: init customer and models
 		
 		c, Populate following fields as below data over the dialog page:
 			Cloud owner:  CloudOwner
-			Cloud region id:  sx0
+			Cloud region id:  sx1
 			Cloud Type: openstack
 			Cloud Region Version: titanium_cloud
 			Physical location id: clli3
@@ -38,7 +38,7 @@ Prerequist: init customer and models
 	
 	
 	### login to SO VM:
-	export SO_IP=10.12.6.199<SO_VM floating IP>
+	export SO_IP=10.12.6.199 <SO_VM floating IP>
 	ssh -o StrictHostKeychecking=no -i ~/.ssh/onap_key ubuntu@$SO_IP
 	
 	### check the content of SO config file
@@ -81,12 +81,12 @@ Prerequist: init customer and models
 
 4, Add a customer:
 	### login to Robot VM
-	### using robot script, add customer democust1 with service type: vLB
+	### using robot script, add customer democust3 with service type: vLB
 	sudo /opt/mydemo.sh add_customer democust3 vLB
 
 5, Associate the cloud region (CloudOwner/sx1, tenant name: edge1) with the customer (democust3)
 
 	### login to Robot VM
-	### using robot script, associate the customer with the on-boarded cloud region (CloudOwner/sx0) and tenant name "edge1"
+	### using robot script, associate the customer with the on-boarded cloud region (CloudOwner/sx1) and tenant name "edge1"
 	sudo /opt/mydemo.sh associate_customer democust3 vLB CloudOwner sx1 edge1
 

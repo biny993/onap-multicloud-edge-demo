@@ -7,19 +7,19 @@ Prerequiste:
 	### Open VID portal (Virtual Infrastructure Deployment)
 	### clicke "Browse SDC Service Model" on the left of the portal
 			Click "Deploy" button to instantiate service model with name prefixed with "vLB":
-				instance name: vLB9
+				instance name: vLB12
 				customer: democust3
 				service type: vLB
-			Confirm to instantiate the service instance "vLB9", now you will be redirected to the service instance page
+			Confirm to instantiate the service instance "vLB12", now you will be redirected to the service instance page
 	
 2, add generic VNF
 	### Open VID portal. locate the service instance by:
 		click "Search for existing service instance"
 			Select a subscriber: "democust3", and click "submit"
 			Click the "View/Edit" button of the found service instance.
-	### Add generic VNF "vLB9-VNF2"
+	### Add generic VNF "vLB12_VNF1"
 		Click "add-node-instance", and input parameters on the popup dialog:
-			instance name: "vLB9-VNF2"
+			instance name: "vLB12_VNF1"
 			Product family: "vLB"
 			LCP region: "sx1"
 			Tenant: "edge1"
@@ -31,19 +31,20 @@ Prerequiste:
 		### login to robot VM
 		git clone https://gerrit.onap.org/r/demo
 		cd demo/heat/vLB
-		vi base_vlb.env
+		cp base_vlb.env vLB12_VNF1_VF1.env
+		vi vLB12_VNF1_VF1.env
 			### populate parameters
-	### copy the base_vlb.env to customized robot container
+	### copy the vLB12_VNF1_VF1.env to customized robot container
 		cp base_vlb.env /opt/eteshare/vfmoduledata/
 	### Preload the data from base_vlb.env to SDNC with customized robot script, note "vlb..module-0" is the VF type searching pattern
 		sudo /opt/mydemo.sh preload_vfmodule  vLB12_VNF1 vLB12_VNF1_VF1 base_vlb..module-0 vLB12_VNF1_VF1.env
 	
 4, Add VF module
 	### With VID portal, add VF module to the generic VNF
-	 Search and view/edit the service instance "vLB11"
-	 click "Add VF Module" for the generic VNF "vLB11-VNF1" and select the "xxx-base_vlb..module-0"
-		Instance name: vLB11-VFMODULE1
-		LCP region: "sx0"
+	 Search and view/edit the service instance "vLB12"
+	 click "Add VF Module" for the generic VNF "vLB12_VNF1" and select the "xxx-base_vlb..module-0"
+		Instance name: vLB12_VNF1_VF1
+		LCP region: "sx1"
 		Tenant: "edge1"
 		SDN-C Pre-Load:	Checked
 	Confirm to instantiate the VF Module.
@@ -60,12 +61,12 @@ Prerequiste:
 		export STACK_ID=<heat stack id for the VF Module>
 		export MULTISERVICE_IP=10.0.14.1
 		export MSB_EP_PORT=80
-		export MC_EP=http://$MULTISERVICE_IP:$MC_EP_PORT/api/multicloud-titaniumcloud/v1/CloudOwner/sx0
+		export MC_EP=http://$MULTISERVICE_IP:$MC_EP_PORT/api/multicloud-titaniumcloud/v1/CloudOwner/sx1
 		curl -v -s -H "Content-Type: application/json" -X GET  $MC_EP/infra_workload/$STACK_ID
 
 7, validate with postman/curl command
 	curl -X GET \
-	  'https://<AAI_IP>:8443/aai/v13/cloud-infrastructure/cloud-regions/cloud-region/CloudOwner/sx0?depth=all' \
+	  'https://<AAI_IP>:8443/aai/v13/cloud-infrastructure/cloud-regions/cloud-region/CloudOwner/sx1?depth=all' \
 	  -H 'Accept: application/json' \
 	  -H 'Authorization: Basic QUFJOkFBSQ==' \
 	  -H 'Cache-Control: no-cache' \
