@@ -1831,7 +1831,7 @@ resources:
             echo "export OPENO_IP=__openo_ip_addr__" >> /opt/config/onap_ips.txt
 
             # Download and run install script
-            apt-get -y install unzip
+            apt-get -y install unzip zip
             if [[ "__artifacts_version__" =~ "SNAPSHOT" ]]; then REPO=snapshots; else REPO=releases; fi
             git clone https://github.com/biny993/onap-multicloud-edge-demo.git
             cd onap-multicloud-edge-demo/multicloud-edge/boot-1.2.1-mc-edge
