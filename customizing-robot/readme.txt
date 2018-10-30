@@ -18,18 +18,12 @@ Note: verified with HEAT based ONAP beijing release.
 		$ git clone https://gerrit.onap.org/r/testsuite/properties
 		$ git clone https://gerrit.onap.org/r/testsuite/python-testing-utils
 		$ git fetch https://gerrit.onap.org/r/testsuite refs/changes/29/64929/1 && git cherry-pick FETCH_HEAD
-		$ cd heatbrdige
-		…
-		$ cd properties
-		$ git apply testsuite.properties.customization1.patch
-		…
-		$ cd python-testing-utils
-		…
+
 	
 	2, build docker images
 		$ cd testsuites
-		$ cp docker/*.
-		$ sudo -D build -t my_testsuite .
+		$ cp docker/* .
+		$ sudo docker -D build -t my_testsuite .
 		
 
 3 Deploy customized robot service onto robot VM:
@@ -38,11 +32,11 @@ Note: verified with HEAT based ONAP beijing release.
 	$ sudo docker rm myrobot
 
 	### start the docker container
-	$sudo docker run -d --name myrobot -v /opt/eteshare:/share -p 98:98 myrobot
+	$sudo docker run -d --name myrobot -v /opt/eteshare:/share -p 98:98 my_testsuite
 
 	### customize the demo.sh
-	$ sudo cp /opt/demo.sh /opt/mydemo.sh
-	$ sudo cp ~/testsuite/properties/demo.sh /opt/mydemo.sh
+	$ sudo wget https://github.com/biny993/onap-multicloud-edge-demo/tree/master/customizing-robot/mydemo.sh /opt/mydemo.sh
+	$ sudo chmod +x /opt/mydemo.sh
 
 	
 *** Appendix/exercises:
