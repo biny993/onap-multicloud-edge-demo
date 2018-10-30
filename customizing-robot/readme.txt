@@ -42,7 +42,7 @@ Note: verified with HEAT based ONAP beijing release.
 *** Appendix/exercises:
 
 Prerequist: init customer and models
-sudo /opt/mydemo.sh init
+sudo /opt/demo.sh init
 
 Exercise 1: Add complex
 
